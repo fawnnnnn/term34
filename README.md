@@ -1,4 +1,4 @@
-#desing and build
+# Design and Build
 
 
 ## Design ideas
