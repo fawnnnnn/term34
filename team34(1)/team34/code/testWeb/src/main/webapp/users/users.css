@@ -1,0 +1,517 @@
+@charset "UTF-8";
+/*@import url();*/
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    list-style: none;
+    text-decoration: none;
+}
+
+
+        
+body {
+	height: 100vh;
+	width: 100%;
+    background-image: url('userback.jpg');
+    background-repeat: no-repeat;
+    background-position: center center; 
+    background-size: cover; 
+    display: flex;
+    justify-content: center;
+    /*align-items: center;垂直居中*/
+    text-align: center;
+}
+
+
+
+.container {
+    display: flex;
+    flex-direction: column; 
+    align-items: center; /* 居中对齐 */
+}
+
+.wrapper, .slide-box {
+    width: 100%; 
+    /* 这里添加其他样式，例如背景颜色、边距等 */
+}
+
+.wrapper{
+	width: 80vw;
+	height: 80px;
+	line-height: 80px;
+	background-color: rgb(184, 230, 233);
+	box-shadow: 0px 5px 15px rgba(0,0,0,0.25);
+	border-radius: 50px;
+}
+
+.wrapper nav{
+	display: flex;
+	position: relative;
+}
+
+.wrapper nav label{
+	flex: 1;
+	width: 100%;
+	position: relative;
+	z-index: 1;
+	cursor: pointer;/*鼠标放上变小手*/
+}
+
+.wrapper nav label a.fa{
+	position: relative;
+	z-index:-1;
+	color: #333;
+	font-size:30px;
+	font-weight: 500;
+	text-decoration: none;/*没线*/
+}
+
+.wrapper nav label a i{
+	font-size:35px;
+	margin: 0px 7px;
+}
+
+.wrapper nav input{
+	display: none;
+}
+
+.wrapper nav .tab{
+	position: absolute;
+	height: 100%;
+	width: 33%;
+	left: 0px;
+	bottom: 0px;
+	background:linear-gradient(to right,#f09819,#ff5858);/*渐变背景*/
+	border-radius: 50px;
+	transition: 0.6s;
+}
+
+.wrapper nav #home:checked ~ label.home a ,
+.wrapper nav #automobile:checked ~ label.automobile a ,
+.wrapper nav #rout:checked ~ label.rout a{
+	color: #fff;
+	transition: 0.6s;
+}
+
+.wrapper nav #automobile:checked ~ .tab{
+	left:33%
+}
+
+.wrapper nav #rout:checked ~ .tab{
+	left:67%
+}
+a.home{
+	width: 33%;
+}
+
+a.automobile{
+	width: 33%;
+}
+
+a.rout{
+	width: 33%;
+}
+
+.slide-box{
+	position: relative;
+	margin: 50px auto;
+	height: 400px;
+	max-width: 1400px;
+	min-width: 700px;
+}
+
+.popup {
+    /* 其他样式 */
+    z-index: 1000; /* 设置一个较高的层级 */
+}
+
+
+/*轮播图*/
+.material-icons {
+    font-size: 50px; /* 可根据需要调整图标大小，这里设置为 24 像素 */
+}
+
+.banner-box{
+	position: relative;
+	height: 100%;
+	width: 100%;
+}
+
+.banner-item{
+	position: absolute;
+	bottom: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 500px;
+	height: 90%;
+	background-color: #000;
+	box-sizing: border-box;
+	border-radius: 10px;
+	overflow: hidden;
+	transition: all 0.5s;
+	z-index: 0;
+}
+
+.banner-item>img{
+	display: block;
+	width: 100%;
+	height: 100%;
+	opacity: 0.5;
+	transform: opacity 0.5s;
+	object-fit: cover;
+}
+
+.banner-item.left{
+	left:0;
+	transform: translateX(0);
+	z-index: 50;
+}
+
+.banner-item.right{
+	left:100%;
+	transform: translateX(-100%);
+	z-index: 50;
+}
+
+.banner-item.middle{
+	width: 550px;
+	height: 100%;
+	z-index: 100;
+}
+
+.banner-item.middle>img{
+	opacity:1;
+}
+
+.slide-left-btn, .slide-right-btn{
+	position: absolute;
+	top:50%;
+	z-index: 200;
+	width: 40px;
+	height: 40px;
+	font-weight: 900;
+	color: #b4b4b4;
+	border: none;
+	background: none;
+}
+
+.slide-left-btn:hover, .slide-right-btn:hover{
+	color: #fff;
+}
+
+.slide-left-btn{
+	left: 1%;
+}
+
+.slide-right-btn{
+	left:95%;
+}
+
+.pagination-box{
+	margin-top: 10px;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+}
+
+.pagination-box>span{
+	width: 30px;
+	height: 6px;
+	border-radius: 3px;
+	margin: 0 4px;
+	background-color: #b4b4b4;
+}
+
+.pagination-box>span.chose{
+	background-color: #ff4444;
+}
+
+.content {
+    display: none;
+}
+
+/*聚光灯文字*/
+p{
+    color: rgb(205, 228, 207);
+    /* 转大写 */
+    text-transform: uppercase;
+    font-size: 150px;
+    /* 相对定位 */
+    position: relative;
+}
+p::after{
+    content: "robot world";
+    /* 颜色为透明 */
+    color: transparent;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: linear-gradient(to right,#ff59b3,#fe0000,#ffff01,#40e1d2,#410098,#9400d4);
+    /* 以文字的范围来裁剪背景图片 */
+    background-clip: text;
+    -webkit-background-clip: text;
+    /* 将元素裁剪为一个圆形（100px表示圆的直径，0% 50%表示圆心的位置） */    
+    clip-path: circle(100px at 0% 50%);
+    /* 执行动画（动画 时长 infinite表示无限次播放） */
+
+    animation: light 5s infinite;
+}
+
+/* 定义动画 改变圆心的位置 */
+@keyframes light {
+    0%{
+        clip-path: circle(100px at 0% 50%);
+    }
+    50%{
+        clip-path: circle(100px at 100% 50%);
+    }
+    100%{
+        clip-path: circle(100px at 0% 50%);
+    }
+    
+
+}
+
+
+/*箱子*/
+
+.box{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    /* 开启3D效果 */
+    transform-style: preserve-3d;
+    /* 设置视距 */
+    perspective: 1000px;
+    /* 默认沿着·X轴旋转-20度 */
+    transform: rotateX(-20deg);
+    position: absolute;  
+    top: 50%; 
+    left: 0; 
+    right: 0; 
+    bottom: 0; 
+    z-index: 1; 
+}
+
+.flex-item {
+  align-self: flex-start; 
+}
+
+/* 箱子各个面的统一样式 */
+.side{
+    /* 绝对定位 */
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    background-color: #c09551;
+    border: 1px solid #e4c084;
+}
+
+/* 前 */
+.front{
+    transform: translateZ(100px);
+}
+
+/* h后 */
+.back{
+    transform: translateZ(-100px) rotateY(180deg);
+}
+
+/* 左边 */
+.left{
+    transform: translateX(-100px) rotateY(-90deg);
+}
+/* 右边 */
+.right{
+    transform: translateX(100px) rotateY(90deg);
+}
+/* 上 */
+.top{
+    transform: translateY(-100px) rotateX(90deg);
+    /* 透明的 */
+    background-color: transparent;
+    transform-style: preserve-3d;
+}
+
+.top div{
+    background-color: #c09551;
+    /* 绝对定位 */
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    border: 1px solid #e4c084;
+    /* 设置过渡 */
+    transition: 0.5s;
+}
+
+.top .tl{
+    left: 0;
+    /* 设置旋转的基点位置为左边 */
+    transform-origin: left;
+}
+
+.top .tr{
+    right: 0;
+    /* 设置旋转的基点位置为左边 */
+    transform-origin: right;
+}
+
+.bottom{
+    transform:  translateY(100px) rotateX(-90deg);
+    /* 阴影 */
+    box-shadow: 5px -5px 15px rgba(0, 0, 0, 0.4);
+}
+
+.box:hover .top .tl{
+    transform: rotateY(-135deg);
+}
+
+.box:hover .top .tr{
+    transform: rotateY(135deg);
+}
+
+.box .text{
+    width: 200px;
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+    transition: 0.6s;
+}
+
+.box:hover .text{
+    transform: translateY(-250px);
+}
+
+
+/*表格美化*/
+
+.custom-table {
+  border-collapse: collapse;
+  width: 1300px;
+  margin: 0 auto;
+  border: 1px solid rgb(128, 128, 255) !important; 
+}
+
+.custom-table td {
+  border: 1px solid rgb(128, 128, 255) !important;
+  padding: 50px;
+  text-align: center;
+  font-size: 25px;
+}
+
+/* 鼠标悬停效果 */
+.custom-table tr td:hover {
+  background-color: #f5f5f5;
+}
+
+
+.button-container {
+    display: flex; /* 使用 Flexbox 布局 */
+    justify-content: space-between; /* 横向分布，按钮之间平均分布 */
+    margin: 0 auto; /* 水平居中 */
+    width: 70%; 
+}
+
+
+/*增删改按钮样式*/
+button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    bottom: 0; 
+    background-color: transparent;
+    font-size: 25px;
+    z-index: 1;  
+}
+
+
+.custom-button{
+	position: relative;
+	display: block;
+	width: 140px;
+	height: 60px;
+	line-height: 60px;
+	text-align: center;
+	margin: 40px;
+	color: rgb(234, 102, 218);
+	text-decoration: none;
+	font-size: 20px;
+	transition: all 0.3s ease-in-out;
+	border: none;
+}
+
+.custom-button::before,
+.custom-button::after{
+	content: "";
+	position: absolute;
+	width: 20px;
+	height: 20px;
+	border: 2px solid rgb(234, 102, 218);
+	transition: all 0.3s ease-in-out 0.3s;
+}
+
+.custom-button::before{
+	top: 0;
+	left: 0;
+	border-right: 0;
+	border-bottom: 0;
+}
+
+.custom-button::after{
+	right: 0;
+	bottom: 0;
+	border-top: 0;
+	border-left: 0;
+}
+
+.custom-button:hover{
+	background-color: rgb(234, 102, 218);
+	color: #000;
+	box-shadow: 0 0 50px rgb(234, 102, 218);
+	-webkit-box-reflect: below 1px linear-gradient(transparent,rgba(0,0,0,0.3));
+	transition-delay: 0.4s;
+}
+
+.custom-button:hover::before,
+.custom-button:hover::after{
+	width: 138px;
+	height: 58px;
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1;
+}
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+}
+
+
+.btn{
+	position: relative;
+}
+
+

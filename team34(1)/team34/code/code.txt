@@ -1,0 +1,533 @@
+//四轮电机
+#define LFT1 10
+#define LFT2 11
+#define IN1 A6
+#define IN2 A5
+#define RIT1 9
+#define RIT2 8
+#define IN3 A4
+#define IN4 A7
+
+
+const int TrackSensorLeftPin1 = 45;   //定义第一个循迹红外传感器引脚为A1
+const int TrackSensorLeftPin2 = 43;   //定义第二个循迹红外传感器引脚为A2
+const int TrackSensorMid = 41;        //定义第三个循迹红外传感器引脚为A3
+const int TrackSensorRightPin1 = 39;  //定义第四个循迹红外传感器引脚为A4
+const int TrackSensorRightPin2 = 37;  //定义第五个循迹红外传感器引脚为A5
+
+//定义各个循迹红外引脚采集的数据的变量
+int SLL;
+int SL;
+int SM;
+int SR;
+int SRR;
+
+//定义碰撞开关
+
+const int collision = 22;
+int col;
+
+//定义超声波测距
+#define TrigMid 53  // 设定SR04连接的Arduino引脚
+#define EchoMid 51
+#define TrigLeft 5
+#define EchoLeft 4
+#define TrigRight A4
+#define EchoRight A3
+double distance1, time1;
+double distance2, time2;
+double distance3, time3;
+
+//定义蓝牙控制
+typedef unsigned char u8;
+typedef unsigned int u4;
+typedef unsigned long u32;
+
+#define USART_MAX_RECV_LEN 1
+u8 USART_RX_BUF[USART_MAX_RECV_LEN];
+
+//定义蓝牙APP中控制按键的键值
+#define BLUETOOTH_FORWARD 0x10
+#define BLUETOOTH_BACKWARD 0x11
+#define BLUETOOTH_LEFT 0x20
+#define BLUETOOTH_RIGHT 0x21
+#define BLUETOOTH_STOP 0x30
+
+//定义舵机转动
+#include <Servo.h>
+
+Servo myservoX;  // 创建舵机对象来控制水平旋转
+Servo myservoY;  // 创建舵机对象来控制垂直旋转
+
+int servoPinX = 15;  // 设置水平旋转舵机连接的引脚
+int servoPinY = 16;  // 设置垂直旋转舵机连接的引脚
+
+//定义颜色传感器接口
+#define tcs230_S0 22
+#define tcs230_S1 23
+#define tcs230_S2 24
+#define tcs230_S3 25
+#define tcs230_sensorOut 26
+#define tcs230_LED 27
+int redPin=12; //红色设定9号引脚
+int greenPin=11; //10号引脚连接绿色
+int bluePin=10; //11号连接蓝色
+int frequency=0;
+
+
+void setup() {
+  pinMode(LFT1, OUTPUT);  //PWM
+  pinMode(LFT2, OUTPUT);  //PWM
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(RIT1, OUTPUT);  //PWM
+  pinMode(RIT1, OUTPUT);  //PWM
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+
+  //定义四路循迹红外传感器为输入接口
+  pinMode(TrackSensorLeftPin1, INPUT);
+  pinMode(TrackSensorLeftPin2, INPUT);
+  pinMode(TrackSensorMid, INPUT);
+  pinMode(TrackSensorRightPin1, INPUT);
+  pinMode(TrackSensorRightPin2, INPUT);
+
+  //四路循迹红外传感器初始化为高电平
+  digitalWrite(TrackSensorLeftPin1, HIGH);
+  digitalWrite(TrackSensorLeftPin2, HIGH);
+  digitalWrite(TrackSensorMid, HIGH);
+  digitalWrite(TrackSensorRightPin1, HIGH);
+  digitalWrite(TrackSensorRightPin2, HIGH);
+
+  //碰撞开关初始化
+  pinMode(collision, INPUT);
+  digitalWrite(collision, HIGH);
+
+  //超声波测距
+  Serial.begin(9600);  // 初始化串口通信及连接SR04的引脚
+  pinMode(TrigMid, OUTPUT);
+  pinMode(EchoMid, INPUT);
+  pinMode(TrigLeft, OUTPUT);
+  pinMode(EchoLeft, INPUT);
+  pinMode(TrigRight, OUTPUT);
+  pinMode(EchoRight, INPUT);
+  Serial.println("The distance is :"); 
+
+  //舵机
+  myservoX.attach(servoPinX);  // 将水平旋转舵机连接到指定的引脚
+  myservoY.attach(servoPinY);  // 将垂直旋转舵机连接到指定的引脚
+
+  // 将舵机旋转到初始位置（正中间）
+  myservoX.write(90);  // 90度表示正中间位置
+  myservoY.write(90);
+
+  //颜色传感器
+  pinMode(tcs230_S0, OUTPUT);
+  pinMode(tcs230_S1, OUTPUT);
+  pinMode(tcs230_S2, OUTPUT);
+  pinMode(tcs230_S3, OUTPUT);
+  pinMode(tcs230_LED, OUTPUT);
+  pinMode(tcs230_sensorOut, INPUT);
+  digitalWrite(tcs230_S0,HIGH);
+  digitalWrite(tcs230_S1,LOW);
+  digitalWrite(tcs230_LED,HIGH);
+  Serial.begin(9600);
+}
+
+void stop(){
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+  delay(200);
+}
+
+void run() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+ analogWrite(LFT1, left);
+ analogWrite(LFT2, LOW);
+
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+ analogWrite(RIT1, right);
+ analogWrite(RIT2, LOW);
+  printf("We are go straight on!");
+}
+
+void rollback() {
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+  delay(50);
+  printf("we rollback");
+}
+
+
+void left() {
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+analogWrite(LFT1, left);
+ analogWrite(LFT2, LOW);
+
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+   analogWrite(RIT1, right);
+  analogWrite(RIT2, LOW);
+
+  printf("We are left now");
+}
+
+void right() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+   analogWrite(LFT1, left);
+   analogWrite(LFT2, LOW);
+
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+   analogWrite(RIT1, right);
+   analogWrite(RIT2, LOW);
+  printf("We are right now");
+}
+
+void headmove(){
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+   analogWrite(LFT1, left);
+   analogWrite(LFT2, LOW);
+
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+   analogWrite(RIT1, right);
+   analogWrite(RIT2, LOW);  
+  
+  delay(2000);
+  printf("We are left now");
+}
+
+//蓝牙延迟函数代码
+void delay10us(void) {
+  unsigned char a, b;
+  for (b = 1; b > 0; b--)
+    for (a = 2; a > 0; a--)
+      ;
+}
+
+void delay_10us(u4 us) {
+  while (us--)
+    ;
+}
+
+void delay_ms(u4 ms) {
+  u4 i, j;
+  for (i = ms; i > 0; i--)
+    for (j = 110; j > 0; j--)
+      ;
+}
+
+//蓝牙定义相关函数
+#define RELOAD_COUNT 0xFA  //宏定义波特率发生器的载入值 9600
+
+void UART_Init(void) {
+  const int SCON = 0X50;         //设置为工作方式1
+  const int TMOD = 0X20;         //设置计数器工作方式2
+  const int PCON = 0X80;         //波特率加倍
+  const int TH1 = RELOAD_COUNT;  //计数器初始值设置
+  const int TL1 = TH1;
+  const int ES = 1;   //打开接收中断
+  const int EA = 1;   //打开总中断
+  const int TR1 = 1;  //打开计数器
+} 
+
+void UART_SendByte(u8 dat) {
+  const int ES = 0;      //关闭串口中断
+  const int TI = 0;      //清发送完毕中断请求标志位
+  const int SBUF = dat;  //发送
+  while (TI == 0){
+    const int TI = 0;  //清发送完毕中断请求标志位
+    const int ES = 1;  //允许串口中断
+  }     //等待发送完毕
+
+}
+
+void BlueTooth_Init(void) {
+  UART_Init();
+}
+
+void BlueTooth_SendData(u8 dat) {
+  UART_SendByte(dat);
+}
+
+//  void Uart()  {
+//   if (RI) {
+//      USART_RX_BUF[0] = SBUF;
+//      RI = 0;  //清除接收中断标志位
+//    }
+//  }
+
+
+//颜色传感器检测函数
+int tcs230_Getcolor(char data)
+{
+  int frequency = 0;
+  switch(data)
+  {
+    case 'R':
+    {
+      digitalWrite(tcs230_S2,LOW);
+      digitalWrite(tcs230_S3,LOW);
+      int frequency1 = pulseIn(tcs230_sensorOut, LOW);
+      frequency1 = map(frequency1, 25, 72, 255, 0);
+      frequency=frequency1;
+      break;
+    }
+    case 'G':
+    {
+      digitalWrite(tcs230_S2,HIGH);
+      digitalWrite(tcs230_S3,HIGH);
+      int frequency2 = pulseIn(tcs230_sensorOut, LOW);
+      frequency2 = map(frequency2, 30, 90, 255, 0);
+      frequency=frequency2;
+      break;
+    }
+    case 'B':
+    {
+      digitalWrite(tcs230_S2,LOW);
+      digitalWrite(tcs230_S3,HIGH);
+      int frequency3 = pulseIn(tcs230_sensorOut, LOW);
+      frequency3 = map(frequency3, 25, 70, 255, 0);
+      frequency=frequency3;
+      break;
+    }
+    default:
+      return -1;
+  }
+  
+  if (frequency < 0)
+    frequency = 0;
+  if (frequency > 255)
+    frequency = 255;
+  return frequency;
+}
+
+
+
+void loop() {
+  //检测到黑线时循迹模块相应的指示灯灭，端口电平为HIGH
+  //未检测到黑线时循迹模块相应的指示灯亮，端口电平为LOW
+  SLL = digitalRead(TrackSensorLeftPin1);
+  SL = digitalRead(TrackSensorLeftPin2);
+  SM = digitalRead(TrackSensorMid);
+  SR = digitalRead(TrackSensorRightPin1);
+  SRR = digitalRead(TrackSensorRightPin2);
+
+  col = digitalRead(collision);
+
+
+  //碰撞
+  if (col != HIGH) {
+    Serial.println("1");
+    rollback();
+  }
+  //寻迹
+
+  if (SLL == HIGH || SL == HIGH || SM == HIGH || SR == HIGH || SRR == HIGH) {
+    if (SM == HIGH && col == HIGH) {
+      run();
+    }
+    if (SL == HIGH && SM == LOW && col == HIGH) {
+
+      left();
+    }
+    if (SLL == HIGH && SM == LOW && col == HIGH) {
+
+      left();
+    }
+    if (SR == HIGH && SM == LOW && col == HIGH) {
+
+      right;
+    }
+    if (SRR == HIGH && SM == LOW && col == HIGH) {
+      right;
+    }
+    if (SR == HIGH && SRR == HIGH && col == HIGH) {
+      right;
+    }
+    if (SL == HIGH && SLL == HIGH && col == HIGH) {
+      left();
+    }
+    if (SRR == HIGH && SR == HIGH && SM == HIGH && SL == HIGH && col == HIGH) {
+      right;
+    }
+
+    if (SM == HIGH && (SL == HIGH && SLL == HIGH) || (SR == HIGH && SL == HIGH) || (SR == HIGH && SRR == HIGH) && col == HIGH) {
+      run();
+    }
+
+
+
+
+    // else{
+    //    rollback();
+    //    Serial.println("collision");
+    // }
+  }
+
+  //mid超声波
+  digitalWrite(TrigMid, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TrigMid, HIGH);
+  delayMicroseconds(10);  //产生一个10us的高脉冲去触发SR04
+  digitalWrite(TrigMid, LOW);
+
+  time1 = pulseIn(EchoMid, HIGH);  // 检测脉冲宽度，注意返回值是微秒us
+  distance1 = time1 / 58;          //计算出距离,输出的距离的单位是厘米cm
+
+  Serial.print(distance1);  //把得到的距离值通过串口通信返回给电脑，通过串口监视器显示出来
+  Serial.println("cm");
+  delay(200);
+
+  //left超声波
+  digitalWrite(TrigLeft, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TrigLeft, HIGH);
+  delayMicroseconds(10);  //产生一个10us的高脉冲去触发SR04
+  digitalWrite(TrigLeft, LOW);
+
+  time2 = pulseIn(EchoLeft, HIGH);  // 检测脉冲宽度，注意返回值是微秒us
+  distance2 = time2 / 58;           //计算出距离,输出的距离的单位是厘米cm
+
+  Serial.print(distance2);  //把得到的距离值通过串口通信返回给电脑，通过串口监视器显示出来
+  Serial.println("cm");
+  delay(200);
+
+  //right超声波
+  digitalWrite(TrigRight, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TrigRight, HIGH);
+  delayMicroseconds(10);  //产生一个10us的高脉冲去触发SR04
+  digitalWrite(TrigRight, LOW);
+
+  time3 = pulseIn(EchoRight, HIGH);  // 检测脉冲宽度，注意返回值是微秒us
+  distance3 = time3 / 58;            //计算出距离,输出的距离的单位是厘米cm
+
+  Serial.print(distance3);  //把得到的距离值通过串口通信返回给电脑，通过串口监视器显示出来
+  Serial.println("cm");
+  delay(200);
+
+
+  //超声波实现
+  //前方距离过大的情况
+  if(distance1>=26 &&distance2<20 && distance3<20){
+    run();
+    Serial.println("bss");  
+  }
+  else if(distance1>=26 &&distance2>=20 && distance3<20){
+    run();
+    
+      Serial.println("bbs");
+  }
+  else if(distance1>=26 &&distance2<20 && distance3>=20){
+    run();
+      Serial.println("bsb");
+  }
+  else if(distance1>=26 &&distance2>=20 && distance3>=20){
+    run();
+      Serial.println("bbb");
+  }
+  //前面小
+  else if(distance1<26 &&distance2<20 && distance3<20){
+      right();
+        Serial.println("sss");
+  }
+  else if(distance1<26 &&distance2>=20 && distance3<20){
+    rollback();
+    left();
+      // delay(1250);
+      Serial.println("sbs");
+  }
+  else if(distance1<26 &&distance2<20 && distance3>=20){
+    rollback();
+    right();
+      // delay(1250);
+      Serial.println("ssb");
+  }
+  else if(distance1<26 &&distance2>=20 && distance3>=20){
+    rollback();
+    left();
+      // delay(1250);
+      Serial.println("sbb");
+  }
+  else{
+  Serial.println("error");
+  }
+  
+
+  //蓝牙功能实现
+  	BlueTooth_Init();
+	while(1)
+	{  
+		 switch(USART_RX_BUF[0])
+		{
+			case 1: run();break;
+			case 2: rollback();break;
+			case 3: left();break;
+			case 4: right;break;
+			// case 5: Car_Stoprun();break;
+		}
+	}	
+
+
+  //舵机旋转
+  // 上下旋转
+  for (int pos = 0; pos <= 180; pos += 1) {  // 从0度旋转到180度
+    myservoY.write(pos);  // 控制垂直旋转舵机旋转到指定角度
+    delay(5);            // 逐步缩小延时，使转动更加柔和
+  }
+  for (int pos = 180; pos >= 0; pos -= 1) {  // 从180度旋转到0度
+    myservoY.write(pos);  // 控制垂直旋转舵机旋转到指定角度
+    delay(5);            // 逐步缩小延时，使转动更加柔和
+  }
+
+  // 左右旋转
+  for (int pos = 0; pos <= 180; pos += 1) {  // 从0度旋转到180度
+    myservoX.write(pos);  // 控制水平旋转舵机旋转到指定角度
+    delay(5);            // 逐步缩小延时，使转动更加柔和
+  }
+  for (int pos = 180; pos >= 0; pos -= 1) {  // 从180度旋转到0度
+    myservoX.write(pos);  // 控制水平旋转舵机旋转到指定角度
+    delay(5);            // 逐步缩小延时，使转动更加柔和
+  }
+
+  // 舵机回到初始位置
+  myservoX.write(90);
+  myservoY.write(90);
+
+  delay(1000);  // 缩短停止时间为1秒
+
+
+
+  //颜色传感器读取返回值
+    if (tcs230_Getcolor('R')) {
+    Serial.println("RED");
+     analogWrite(redPin,255);
+     analogWrite(greenPin,0);
+     analogWrite(bluePin,0);
+ 
+  }
+  else if (tcs230_Getcolor('B')) {
+    Serial.println("BLUE");
+    analogWrite(redPin,0);
+     analogWrite(greenPin,0);
+     analogWrite(bluePin,255);
+ 
+  }
+  else if (tcs230_Getcolor('G')) {
+    Serial.println("GREEN");
+    analogWrite(redPin,0);
+     analogWrite(greenPin,255);
+     analogWrite(bluePin,0);
+  }
+}
